@@ -8,16 +8,15 @@ completion message ":pbox> library loaded".  Once the library
 has been loaded, you can define probability distributions 
 
 `
-      a = normal(5,1)
-      
+      a = normal(5,1)  
       b = uniform(2,3)
 `
 
 and  p-boxes 
 
 `
-      c = meanvariance(0,2)
-      d = lognormal(interval(6,7), interval(1,2))
+      c = meanvariance(0,2)  
+      d = lognormal(interval(6,7), interval(1,2))  
       e = mmms(0,10,3,1)
 `
 
@@ -39,7 +38,7 @@ vertical bars, the software tries to figure out how the
 arguments are related to one another. Expressions such as
 
 `
-      a + b
+      a + b  
       a + log(a) * b
 `      
 
@@ -61,7 +60,7 @@ the samedistribution function, e.g., c = samedistribution(a).
 By default, separately constructed distributions such as 
 
 `
-      a = normal(5,1)
+      a = normal(5,1)  
       b = uniform(2,3)
 `
 
@@ -117,8 +116,8 @@ so it is not necessary to explicitly make the reciprocal
 assignment.  Thus
 
 `
-      a = N(5,1)
-      b = U(2,3, perfect=a)
+      a = N(5,1)  
+      b = U(2,3, perfect=a)  
       c = N(15,2, perfect=b)
 `
 
@@ -139,7 +138,7 @@ The defined mathematical operators include
 
 |   | Auto  | Frechet  | Perfect  |Opposite   |Independent|
 |---|---|---|---|---|---|
-| Addition  |   |   |   |   |
+| Addition  | +  | %+%  | %/+/%  | %o+o%  |%|+|%
 |Subtraction   |   |   |   |   |
 | Product  |   |   |   |   |
 | Division  |   |   |   |   |
