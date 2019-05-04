@@ -7,21 +7,19 @@ click the Open button to read it into R.  You should see the
 completion message ":pbox> library loaded".  Once the library 
 has been loaded, you can define probability distributions 
 
-`      a = normal(5,1)`  
-      `b = uniform(2,3)`
+    a = normal(5,1)
+    b = uniform(2,3)
 
 and  p-boxes 
 
-`      c = meanvariance(0,2)  `  
-`      d = lognormal(interval(6,7), interval(1,2))  `  
-`      e = mmms(0,10,3,1)`
+    c = meanvariance(0,2)    
+    d = lognormal(interval(6,7), interval(1,2))   
+    e = mmms(0,10,3,1) 
 
 and perform mathematical operations on them, including the 
 Frechet convolution such as 
 
-`
-      a  %+%  b
-`
+    a  %+%  b
 
 or a traditional convolution assuming independence
 
@@ -123,7 +121,7 @@ returns an interval code that is zero if its arguments are
 independent, +1 if they are perfect, etc.
 
 
-The defined mathematical operators include 
+The defined mathematical infix operators include these tabled below.
 
 
 |   | Auto  | Frechet  | Perfect  |Opposite   |Independent|
@@ -141,6 +139,16 @@ The defined mathematical operators include
 |Greater/equal  |  <=  |  %<=%  |  %/<=/%  |  %o<=o%  |  %\|<=\|%
 |Conjunction  |    |  %&%  |   |   |  %\|&\|%
 |Disjunction  |    |  %\|%  |  |   |  %\|\|\|%
+
+Alternatively, the various convolution operations can be accessed by calling functions.
+
+    autoselect(x,y,op)  
+    frechetconv.pbox(x,y,op)  
+    perfectconv.pbox(x,y,op)  
+    oppositeconv.pbox(x,y,op)  
+    conv.pbox(x,y,op)  
+    positiveconv(x,y,op)  
+    negativeconv(x,y,op)  
 
 
                     
