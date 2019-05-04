@@ -135,9 +135,9 @@ The defined mathematical operators include
 | Minimum  |    |  %m%  |  %/m/%  |  %omo%  |  %\|m\|%
 |Maximum  |    |  %M%  |  %/M/%  |  %oMo%  |  %\|M\|%
 |Powers  |  ^  |  %^%  |  %/^/%  |  %o^o%  |  %\|^\|%
-|Less than  |    |  %%  |  %//%  |  %oo%  |  %\|\|%
-|Greater than  |  <  |  %<%  |  %/</%  |  %o<o%  |  %\<|\|%
-|Less or equal  |  >  |  %>%  |  %/>/%  |  %o>o%  |  %\|>\|%
+|Less than  |  \<  |  %\<%  |  %/\</%  |  %o\<o%  |  %\|\<\|%
+|Greater than  |  \>  |  %\>%  |  %/\>/%  |  %o\>o%  |  %\|\>\|%
+|Less or equal  |  \<=  |  %\<=%  |  %/\<=/%  |  %o\<=o%  |  %\|\<=\|%
 |Greater/equal  |  <=  |  %<=%  |  %/<=/%  |  %o<=o%  |  %\|<=\|%
 |Conjunction  |    |  %&%  |   |   |  %\|&\|%
 |Disjunction  |    |  %\|%  |  |   |  %\|\|\|%
