@@ -23,16 +23,14 @@ Frechet convolution such as
 
 or a traditional convolution assuming independence
 
-`
-      a  %|+|%  b
-`
+    a  %|+|%  b
 
 If you do not enclose the operator inside percent signs or 
 vertical bars, the software tries to figure out how the
 arguments are related to one another. Expressions such as
 
-`      a + b  `  
-`      a + log(a) * b`      
+    a + b  
+    a + log(a) * b    
 
 autoselect the convolution to use.  If the software cannot 
 tell what dependence the arguments have, it uses a Frechet 
@@ -51,37 +49,29 @@ the samedistribution function, e.g., c = samedistribution(a).
 
 By default, separately constructed distributions such as 
 
-`      a = normal(5,1) `   
-`      b = uniform(2,3)`
+    a = normal(5,1)    
+    b = uniform(2,3)
 
 will be assumed to be independent (so their convolution a+b 
 will be a precise distribution).  You can acknowledge any
 dependencies between uncertain numbers by mentioning their 
 dependence when you construct them with expressions like 
 
-`
-      b = pbox(uniform(2,3), depends=a)
-`
+    b = pbox(uniform(2,3), depends=a)
 
 You can also make an existing uncertain number dependent on 
 another with an assignment like
 
-`
-      b = pbox(b, depends=a)
-`
+    b = pbox(b, depends=a)
 
 If the variables are mutually dependent, be sure to make the 
 reciprocal assignment
 
-`
-      a = pbox(a, depends=b)
-`
+    a = pbox(a, depends=b)
 
 You can acknowledge several dependencies at a time, as with
 
-`
-      d = pbox(d, depends=c(a,b))
-`
+    d = pbox(d, depends=c(a,b))
 
 but you can't mention an uncertain number in the 'depends' 
 array before the uncertain number exists.
@@ -91,23 +81,19 @@ As alternatives to independence and (unspecified) dependence,
 you can also specify that an uncertain number is perfectly or 
 oppositely dependent on another.
 
-`
       d = beta(2,5, perfect=a)
-`
 
 or
 
-`
-d = beta(2,5, opposite=a)
-`
+    d = beta(2,5, opposite=a)
 
 Perfect and opposite dependencies are automatically mutual, 
 so it is not necessary to explicitly make the reciprocal 
 assignment.  Thus
 
-`      a = N(5,1)  `  
-`      b = U(2,3, perfect=a)  `  
-`      c = N(15,2, perfect=b)`
+    a = N(5,1)  
+    b = U(2,3, perfect=a)  
+    c = N(15,2, perfect=b)
 
 suffices to link c with a and vice versa.  The assignments
 automatically make a, b, and c mutually perfectly dependent.  
@@ -136,11 +122,18 @@ The defined mathematical infix operators include these tabled below.
 |Less than  |  \<  |  %\<%  |  %/\</%  |  %o\<o%  |  %\|\<\|%
 |Greater than  |  \>  |  %\>%  |  %/\>/%  |  %o\>o%  |  %\|\>\|%
 |Less or equal  |  \<=  |  %\<=%  |  %/\<=/%  |  %o\<=o%  |  %\|\<=\|%
-|Greater/equal  |  <=  |  %<=%  |  %/<=/%  |  %o<=o%  |  %\|<=\|%
+|Greater/equal  |  >=  |  %>=%  |  %/>=/%  |  %o>=o%  |  %\|>=\|%
 |Conjunction  |    |  %&%  |   |   |  %\|&\|%
 |Disjunction  |    |  %\|%  |  |   |  %\|\|\|%
 
-Alternatively, the various convolution operations can be accessed by calling functions.
+Note that the operators %*% and %/% (which in R normally
+invoke matrix multiplication and integer division) have 
+been reassigned.  Also notice that &, |, &&, || have not 
+been overloaded for uncertain numbers.  R has sealed those operators, so you must use the 
+operators with percent signs to compute conjunctions or 
+disjunctions.
+
+Alternatively, the various convolution operations can be accessed by calling functions:
 
     autoselect(x,y,op)  
     frechetconv.pbox(x,y,op)  
@@ -150,26 +143,5 @@ Alternatively, the various convolution operations can be accessed by calling fun
     positiveconv(x,y,op)  
     negativeconv(x,y,op)  
 
+where `x` anf `y` are the operands and `op` denotes the operation, such as '+'.
 
-                    
-:    	 +	%+%	%/+/%	%o+o%	  %|+|%		 	 
-:   -	%-%   	%/-/%	%o-o%	  %|-|%		 	 
-: 	 *	%*%	%/*/%	%o*o%	  %|*|%		 	 
-: 	 /	%/%  	%///%	%o/o%	  %|/|%	 		 
-: 		%m%	%/m/%	%omo%	  %|m|%		 	 
-:		%M%	%/M/%	%oMo%	  %|M|%		 	
-:	 ^	%^%	%/^/%	%o^o%	  %|^|%		 	 
-:	 <	%<%	%/</%	%o<o%	  %|<|%		
-:	 >	%>%	%/>/%	%o>o%	  %|>|%		 
-: <=	%<=%	%/<=/%	%o<=o%	  %|<=|%		
-: >=	%>=%	%/>=/%	%o>=o%	  %|>=|%		 
-:		%&%			  %|&|%		 
-:		%|%			  %|||%		 
-
-
-Note that the operators %*% and %/% (which in R normally
-invoke matrix multiplication and integer division) have 
-been reassigned.  Also notice that &, |, &&, || have not 
-been extended for uncertain numbers.  You must use the 
-operators with percent signs to compute conjunctions or 
-disjunctions.
