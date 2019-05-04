@@ -1,5 +1,5 @@
 # pba.r
-Probability Bounds Analysis S4 library for the R 
+Probability Bounds Analysis S4 library for R 
 
 Place this file on your computer and, from within R, select 
 File/Source R code... from the main menu.  Select this file and
@@ -34,7 +34,8 @@ arguments are related to one another. Expressions such as
 
 autoselect the convolution to use.  If the software cannot 
 tell what dependence the arguments have, it uses a Frechet 
-convolution.  
+convolution, which is conservative because it makes no
+assumption about what dependence the operands might have.
 
 
 Variables containing probability distributions or p-boxes 
@@ -76,12 +77,11 @@ You can acknowledge several dependencies at a time, as with
 but you can't mention an uncertain number in the 'depends' 
 array before the uncertain number exists.
 
-
 As alternatives to independence and (unspecified) dependence, 
 you can also specify that an uncertain number is perfectly or 
 oppositely dependent on another.
 
-      d = beta(2,5, perfect=a)
+    d = beta(2,5, perfect=a)
 
 or
 
@@ -143,5 +143,5 @@ Alternatively, the various convolution operations can be accessed by calling fun
     positiveconv(x,y,op)  
     negativeconv(x,y,op)  
 
-where `x` anf `y` are the operands and `op` denotes the operation, such as '+'.
+where `x` and `y` are the operands and `op` denotes the operation, such as '+'.
 
