@@ -143,5 +143,5 @@ Alternatively, the various convolution operations can be accessed by calling fun
     positiveconv(x,y,op)  
     negativeconv(x,y,op)  
 
-where `x` and `y` are the operands and `op` denotes the operation, such as '+'.
+where x and y are the operands and op denotes the operation, such as '+'.
 
