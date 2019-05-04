@@ -9,6 +9,7 @@ has been loaded, you can define probability distributions
 
 `
       a = normal(5,1)
+      
       b = uniform(2,3)
 `
 
