@@ -7,10 +7,8 @@ click the Open button to read it into R.  You should see the
 completion message ":pbox> library loaded".  Once the library 
 has been loaded, you can define probability distributions 
 
-`
-      a = normal(5,1)  
-      b = uniform(2,3)
-`
+      `a = normal(5,1)`  
+      `b = uniform(2,3)`
 
 and  p-boxes 
 
