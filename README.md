@@ -12,11 +12,9 @@ has been loaded, you can define probability distributions
 
 and  p-boxes 
 
-`
-      c = meanvariance(0,2)  
-      d = lognormal(interval(6,7), interval(1,2))  
-      e = mmms(0,10,3,1)
-`
+`      c = meanvariance(0,2)  `  
+`      d = lognormal(interval(6,7), interval(1,2))  `  
+`      e = mmms(0,10,3,1)`
 
 and perform mathematical operations on them, including the 
 Frechet convolution such as 
@@ -35,10 +33,8 @@ If you do not enclose the operator inside percent signs or
 vertical bars, the software tries to figure out how the
 arguments are related to one another. Expressions such as
 
-`
-      a + b  
-      a + log(a) * b
-`      
+`      a + b  `  
+`      a + log(a) * b`      
 
 autoselect the convolution to use.  If the software cannot 
 tell what dependence the arguments have, it uses a Frechet 
@@ -57,10 +53,8 @@ the samedistribution function, e.g., c = samedistribution(a).
 
 By default, separately constructed distributions such as 
 
-`
-      a = normal(5,1)  
-      b = uniform(2,3)
-`
+`      a = normal(5,1) `   
+`      b = uniform(2,3)`
 
 will be assumed to be independent (so their convolution a+b 
 will be a precise distribution).  You can acknowledge any
@@ -113,11 +107,9 @@ Perfect and opposite dependencies are automatically mutual,
 so it is not necessary to explicitly make the reciprocal 
 assignment.  Thus
 
-`
-      a = N(5,1)  
-      b = U(2,3, perfect=a)  
-      c = N(15,2, perfect=b)
-`
+`      a = N(5,1)  `  
+`      b = U(2,3, perfect=a)  `  
+`      c = N(15,2, perfect=b)`
 
 suffices to link c with a and vice versa.  The assignments
 automatically make a, b, and c mutually perfectly dependent.  
@@ -136,20 +128,20 @@ The defined mathematical operators include
 
 |   | Auto  | Frechet  | Perfect  |Opposite   |Independent|
 |---|---|---|---|---|---|
-| Addition  | +  | %+%  | %/+/%  | %o+o%  |%|+|%
-|Subtraction   |   |   |   |   |
-| Product  |   |   |   |   |
-| Division  |   |   |   |   |
-| Minimum  |   |   |   |   |
-|Maximum   |   |   |   |   |
-|Powers   |   |   |   |   |
-|Less than   |   |   |   |   |
-|Greater than   |   |   |   |   |
-|Less or equal   |   |   |   |   |
-|Greater/equal   |   |   |   |   |
-|Conjunction   |   |   |   |   |
-|Disjunction   |   |   |   |   |
-|   |   |   |   |   |
+| Addition  |  +  |  %+%  |  %/+/%  |  %o+o%  |  %\|+\|%
+|Subtraction  |  -  |  %-%  |  %/-/%  |  %o-o%  |  %\|-\|%
+| Product  |  *  |  %*%  |  %/*/%  |  %o*o%  |  %\|*\|%
+| Division  |  /  |  %/%  |  %///%  |  %o/o%  |  %\|/\|%
+| Minimum  |    |  %m%  |  %/m/%  |  %omo%  |  %\|m\|%
+|Maximum  |    |  %M%  |  %/M/%  |  %oMo%  |  %\|M\|%
+|Powers  |  ^  |  %^%  |  %/^/%  |  %o^o%  |  %\|^\|%
+|Less than  |    |  %%  |  %//%  |  %oo%  |  %\|\|%
+|Greater than  |  <  |  %<%  |  %/</%  |  %o<o%  |  %\<|\|%
+|Less or equal  |  >  |  %>%  |  %/>/%  |  %o>o%  |  %\|>\|%
+|Greater/equal  |  <=  |  %<=%  |  %/<=/%  |  %o<=o%  |  %\|<=\|%
+|Conjunction  |    |  %&%  |   |   |  %\|&\|%
+|Disjunction  |    |  %\|%  |  |   |  %\|\|\|%
+
 
                     
 :    	 +	%+%	%/+/%	%o+o%	  %|+|%		 	 
