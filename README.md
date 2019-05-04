@@ -1,5 +1,5 @@
 # pba.r
-Probability Bounds Analysis S4 library for R 
+Probability Bounds Analysis S4 Library for R 
 
 Place this file on your computer and, from within R, select 
 File/Source R code... from the main menu.  Select this file and
@@ -126,12 +126,18 @@ The defined mathematical infix operators include these tabled below.
 |Conjunction  |    |  %&%  |   |   |  %\|&\|%
 |Disjunction  |    |  %\|%  |  |   |  %\|\|\|%
 
-Note that the operators %*% and %/% (which in R normally
-invoke matrix multiplication and integer division) have 
-been reassigned.  Also notice that &, |, &&, || have not 
-been overloaded for uncertain numbers.  R has sealed those operators, so you must use the 
-operators with percent signs to compute conjunctions or 
-disjunctions.
+The basic operator symbols +, -, \*, / and ^ have been overloaded 
+so that they also work with uncertain numbers, i.e., probability 
+distributions, p-boxes and intervals.  Note that the operators 
+%\*% and %/% (which in R normally invoke matrix multiplication and 
+integer division) have been reassigned (not overloaded, so they no 
+longer do matrix multiplication and integer division).  Also notice 
+that there are no autoselected infix operators for minimum and 
+maximum.  The pmin and pmax functions will return the Frechet 
+convolutions.  Also notice that &, |, &&, || have not been 
+overloaded for uncertain numbers because R has sealed those 
+operators.  You must use the operators with percent signs to compute
+conjunctions or disjunctions.
 
 Alternatively, the various convolution operations can be accessed by calling functions:
 
