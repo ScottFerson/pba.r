@@ -1,0 +1,184 @@
+source("C:\\Users\\ferson\\Desktop\\pba.r")    # or your pathway to the pba.r library	
+windows(record=TRUE)	# see http://www.mikemeredith.net/blog/2016/View_previous_graph_Windows.htm
+	
+a = U(2,6)
+b = N(5,1)
+ 
+par(mfrow=c(3,2))
+a + b
+a %+% b
+a %/+/% b
+a %o+o% b
+a %|+|% b
+plot(a + b, col='black')
+lines(a %+% b, col='blue')
+lines(a %/+/% b, col='green')
+lines(a %o+o% b, col='gray')
+lines(a %|+|% b, col='red')
+title('Additions')
+
+par(mfrow=c(3,2))
+a - b
+a %-% b
+a %/-/% b
+a %o-o% b
+a %|-|% b
+plot(a - b, col='black')
+lines(a %-% b, col='blue')
+lines(a %/-/% b, col='green')
+lines(a %o-o% b, col='gray')
+lines(a %|-|% b, col='red')
+title('Subtractions')
+
+par(mfrow=c(3,2))
+a * b
+a %*% b
+a %/*/% b
+a %o*o% b
+a %|*|% b
+plot(a * b, col='black')
+lines(a %*% b, col='blue')
+lines(a %/*/% b, col='green')
+lines(a %o*o% b, col='gray')
+lines(a %|*|% b, col='red')
+title('Multiplications')
+
+par(mfrow=c(3,2))
+a / b
+a %/% b
+a %///% b
+a %o/o% b
+a %|/|% b
+plot(a / b, col='black')
+lines(a %/% b, col='blue')
+lines(a %///% b, col='green')
+lines(a %o/o% b, col='gray')
+lines(a %|/|% b, col='red')
+title('Divisions')
+
+par(mfrow=c(3,2))
+pmin(a, b)
+a %m% b
+a %/m/% b
+a %omo% b
+a %|m|% b
+plot(pmin(a, b), col='black')
+lines(a %m% b, col='blue')
+lines(a %/m/% b, col='green')
+lines(a %omo% b, col='gray')
+lines(a %|m|% b, col='red')
+title('Minimizations')
+
+par(mfrow=c(3,2))
+pmax(a, b)
+a %M% b
+a %/M/% b
+a %oMo% b
+a %|M|% b
+plot(pmax(a, b), col='black')
+lines(a %M% b, col='blue')
+lines(a %/M/% b, col='green')
+lines(a %oMo% b, col='gray')
+lines(a %|M|% b, col='red')
+title('Maximizations')
+
+par(mfrow=c(3,2))
+a ^ b
+a %^% b
+a %/^/% b     
+a %o^o% b
+a %|^|% b
+plot(a ^ b, col='black')
+lines(a %^% b, col='blue')
+lines(a %/^/% b, col='green')
+lines(a %o^o% b, col='gray')
+lines(a %|^|% b, col='red')
+title('Exponentiations')
+
+par(mfrow=c(3,2))
+a < b
+a %<% b
+a %/</% b
+a %o<o% b
+a %|<|% b
+plot(a %<% b, col='blue')
+lines(a < b, col='black')
+lines(a %/</% b, col='green')
+lines(a %o<o% b, col='gray')
+lines(a %|<|% b, col='red')
+title('Less-than comparisons')
+
+par(mfrow=c(3,2))
+a > b
+a %>% b
+a %/>/% b
+a %o>o% b
+a %|>|% b
+plot(a %>% b, col='blue')
+lines(a > b, col='black')
+lines(a %/>/% b, col='green')
+lines(a %o>o% b, col='gray')
+lines(a %|>|% b, col='red')
+title('Greater-than comparisons')
+
+par(mfrow=c(3,2))
+a <= b
+a %<=% b
+a %/<=/% b
+a %o<=o% b
+a %|<=|% b
+plot(a %<=% b, col='blue')
+lines(a <= b, col='black')
+lines(a %/<=/% b, col='green')
+lines(a %o<=o% b, col='gray')
+lines(a %|<=|% b, col='red')
+title('Less-than-or-equal-to comparisons')
+
+par(mfrow=c(3,2))
+a >= b
+a %>=% b
+a %/>=/% b
+a %o>=o% b
+a %|>=|% b
+plot(a %>=% b, col='blue')
+lines(a >= b, col='black')
+lines(a %/>=/% b, col='green')
+lines(a %o>=o% b, col='gray')
+lines(a %|>=|% b, col='red')
+title('Greater-than-or-equal-to comparisons')
+
+a = U(0.2,0.6)
+b = N(0.5,0.1)
+ 
+par(mfrow=c(3,2))
+# a & b     # not supported
+a %&% b
+# a %/&/% b     # not supported
+# a %o&o% b     # not supported
+a %|&|% b
+plot(a %&% b, col='blue')
+lines(a %|&|% b, col='red')
+title('Logical conjunctions')
+
+par(mfrow=c(3,2))
+# a | b     # not supported
+a %|% b
+# a %/|/% b  # not supported
+# a %o|o% b  # not supported
+a %|||% b
+plot(a %|% b, col='blue')
+lines(a %|||% b, col='red')
+title('Logical disjunctions')
+
+# Use PageUp and PageDown keys to scroll among the displays 
+# just created.  The lower, right-hand corner of each display
+# shows all the outputs superimposed on the same scale. The 
+# upper, left graph is the autoselected result.  The upper, 
+# right graph is the Frechet result, which is shown in blue 
+# in the superimposition in the lower, right graph. The middle, 
+# left graph is the result from assuming perfect dependence, 
+# which is also shown in green. The middle, right graph assumes 
+# opposite dependence, also shown in gray. The lower, left plot
+# is the result assuming independence between the operands. It 
+# is also shown in red.
+
