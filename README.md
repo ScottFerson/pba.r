@@ -1,4 +1,4 @@
-# pba.r
+# pba.r 
 Probability Bounds Analysis S4 Library for R 
 
 Place this file on your computer and, from within R, select 
