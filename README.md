@@ -65,17 +65,14 @@ another with an assignment like
 
     b = pbox(b, depends=a)
 
-If the variables are mutually dependent, be sure to make the 
-reciprocal assignment
-
-    a = pbox(a, depends=b)
-
 You can acknowledge several dependencies at a time, as with
 
     d = pbox(d, depends=c(a,b))
 
-but you can't mention an uncertain number in the 'depends' 
-array before the uncertain number exists.
+but you can't mention a variable in the 'depends' array before 
+the value exists.  Also, it only makes sense to specify such 
+dependence among distributions and p-boxes.  Using a scalar or 
+an interval in the 'depends' array will precipitate an error.
 
 As alternatives to independence and (unspecified) dependence, 
 you can also specify that an uncertain number is perfectly or 
@@ -87,7 +84,7 @@ or
 
     d = beta(2,5, opposite=a)
 
-Perfect and opposite dependencies are automatically mutual, 
+These dependency specifications are automatically mutual, 
 so it is not necessary to explicitly make the reciprocal 
 assignment.  Thus
 
@@ -100,15 +97,14 @@ automatically make a, b, and c mutually perfectly dependent.
 Naturally, it is not possible to be perfectly (or oppositely) 
 dependent on more than one quantity unless they are also 
 mutually dependent in the same way.  The indep, perfect, 
-opposite and depends functions check whether their two 
+opposite and depend functions check whether their two 
 arguments are independent, perfectly dependent, oppositely 
-dependent, or dependent, respectively.  The depends function 
+dependent, or dependent, respectively.  The depend function 
 returns an interval code that is zero if its arguments are 
-independent, +1 if they are perfect, etc.
-
+independent, +1 if they are perfect, \[-1,+1\] if they have
+an unknown dependence, etc.
 
 The defined mathematical infix operators include these tabled below.
-
 
 |   | Auto  | Frechet  | Perfect  |Opposite   |Independent|
 |---|---|---|---|---|---|
@@ -139,7 +135,8 @@ overloaded for uncertain numbers because R has sealed those
 operators.  You must use the operators with percent signs to compute
 conjunctions or disjunctions.
 
-Alternatively, the various convolution operations can be accessed by calling functions:
+Alternatively, the various convolution operations can be accessed by 
+calling functions:
 
     autoselect(x,y,op)  
     frechetconv.pbox(x,y,op)  
@@ -151,3 +148,5 @@ Alternatively, the various convolution operations can be accessed by calling fun
 
 where x and y are the operands and op denotes the operation, such as '+'.
 
+This R library is under development.  We would appreciate your comments, 
+questions and suggestions.
