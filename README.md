@@ -127,16 +127,16 @@ so that they also work with uncertain numbers, i.e., probability
 distributions, p-boxes and intervals.  Note that the operators 
 %\*% and %/% (which in R normally invoke matrix multiplication and 
 integer division) have been reassigned (not overloaded, so they no 
-longer do matrix multiplication and integer division).  Also notice 
-that there are no autoselected infix operators for minimum and 
-maximum.  The pmin and pmax functions will return the Frechet 
+longer do matrix multiplication and integer division).  Also 
+notice that there are no autoselected infix operators for minimum 
+and maximum.  The pmin and pmax functions will return the Frechet 
 convolutions.  Also notice that &, |, &&, || have not been 
 overloaded for uncertain numbers because R has sealed those 
-operators.  You must use the operators with percent signs to compute
-conjunctions or disjunctions.
+operators.  You must use the operators with percent signs to 
+compute conjunctions or disjunctions.
 
-Alternatively, the various convolution operations can be accessed by 
-calling functions:
+Alternatively, the various convolution operations can be accessed 
+by calling functions:
 
     autoselect(x,y,op)  
     frechetconv.pbox(x,y,op)  
@@ -146,7 +146,43 @@ calling functions:
     positiveconv(x,y,op)  
     negativeconv(x,y,op)  
 
-where x and y are the operands and op denotes the operation, such as '+'.
+where x and y are the operands and op denotes the operation, such 
+as '+'.
 
-This R library is under development.  We would appreciate your comments, 
-questions and suggestions.
+In addition to these "in-fix" operators, several binary 
+functions are also defined such as 
+
+    env, imp, pmin, pmax, smin, smax, and, or, not
+
+Note that the imp function gives the intersection of uncertain
+numbers.  Several standard mathematical transformations have 
+also been extended to handle p-boxes, including
+
+    exp, log, sqrt, atan, abs, negate, reciprocate, int
+ 
+Use the output commands to see the resulting uncertain numbers, 
+such as
+
+    show(c)
+    summary(d)
+    plot(a)
+    lines(b, col='blue')
+
+There are a variety of standard functions you can use with 
+distributions and p-boxes, such as 
+
+    mean(a)
+    sd(b)
+    var(b)
+    median(c)
+
+as well as some new functions such as
+
+    breadth(d)
+    leftside(c)
+    left(a)
+    prob(a, 3)
+    cut(a, 0.2)
+
+This R library is under development.  We would appreciate your 
+comments, questions and suggestions.
