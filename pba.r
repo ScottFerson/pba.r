@@ -1024,7 +1024,7 @@ perfectopposite <- function(m, x) if (m<0) oppositedep(x) else perfectdep(x)
 # don't think this will work to modify the arguments in place;  is assign any better?
 # probably have to return entire pbox
 
-depends <- function(x,y) {          
+depend <- function(x,y) {          
   if (indep(x,y)) return(0)
   if (perfect(x,y)) return(1)
   if (opposite(x,y)) return(-1)
@@ -2558,34 +2558,61 @@ oppositeconv.pbox <- function(a,b,op='+') {  # prolly doesn't work for ^ in inte
   pbox(u=cu, d=cd,  dids=paste(a@dids,b@dids)) # neither bob nor not-bob
   }
 
-positiveconv = positiveconv.pbox = function(a,b,op='+') {                # positive (PQD) dependence
+positiveconv = function(a,b,op='+') {                # positive (PQD) dependence
   if (op %in% c('-')) return(negativeconv.pbox(a, -b, '+'))
   if (op %in% c('/')) return(negativeconv.pbox(a, reciprocate(b), '*'))
-  if (op %in% c('^')) stop('say what?')
+  if (op %in% c('^')) if ((straddles(a-1)) || (left(a) < 0)) stop('say what?')
   n = Pbox$steps
   cu = cd = rep(0,n)
-  if (op %in% c('+','*')) {
-	for (i in 1:n) {
-		infimum = Inf
-		for (j in i:n) {                                                           # convert the for loops to increase the speed of this function
-			if (op == '+') here = a@d[[j]] + b@d[[n*i/j]] else 
-			if (op == '*') here =  a@d[[j]] * b@d[[n*i/j]]
-			if (here<infimum) infimum = here
-			}
-		cd[i] = infimum
-		supremum = -Inf
-		for (j in 1:i) {
-			kk = floor(1 + n * ((i-1)/n-(j-1)/n)/(1-(j-1)/n))
-			if (op == '+') here = a@u[[j]] + b@u[[kk]] else
-			if (op == '*') here = a@u[[j]] * b@u[[kk]]
-			if (here>supremum) supremum = here
-			}
-		cu[i] = supremum
-		}
-	if (op=='+') v = env(var(a)+var(b), var(a)+var(b)+2*sqrt(var(a)*var(b))) else v=interval(0,Inf)
-	return(pbox(cu, cd, ml=a@ml+b@ml, mh=a@mh+b@mh, vl=left(v), vh=right(v), dids=paste(a@dids,b@dids)))
-	}		
-  }	
+  if (op %in% c('+','*','^')) {
+        for (i in 1:n) {
+                infimum = Inf
+                for (j in i:n) {                                                           # convert the for loops to increase the speed of this function
+                        if (op == '+') here = a@d[[j]] + b@d[[n*i/j]] else 
+                        if (op == '*') here =  a@d[[j]] * b@d[[n*i/j]]
+                        if (op == '^') here =  a@d[[j]] ^ b@d[[n*i/j]]
+                        if (here<infimum) infimum = here
+                        }
+                cd[i] = infimum
+                supremum = -Inf
+                for (j in 1:i) {
+                        kk = floor(1 + n * ((i-1)/n-(j-1)/n)/(1-(j-1)/n))
+                        if (op == '+') here = a@u[[j]] + b@u[[kk]] else
+                        if (op == '*') here = a@u[[j]] * b@u[[kk]]
+                        if (op == '^') here = a@u[[j]] ^ b@u[[kk]]
+                        if (here>supremum) supremum = here
+                        }
+                cu[i] = supremum
+                }
+        if (op=='+') v = env(var(a)+var(b), var(a)+var(b)+2*sqrt(var(a)*var(b))) else v=interval(0,Inf)
+		if (op=='^') if (right(a)<=1) {safe=cu; cu=sort(cd); cd=sort(safe)} # not sure this is correct
+        return(pbox(cu, cd, ml=a@ml+b@ml, mh=a@mh+b@mh, vl=left(v), vh=right(v), dids=paste(a@dids,b@dids)))
+        }               
+  }
+
+# Debugging the ^ operator in positiveconv
+#par(mfrow=c(2,2))
+#checkem = function(a,b) {
+#  plot(frechetconv.pbox(a,b,'^'),col='blue')  # frechet (blue) should enclose all
+#  lines(positiveconv(a,b,'^'),lwd=3)             # should enclose independent (red) and perfect (green)
+#  lines(conv.pbox(a,b,'^'),col='red')
+#  lines(perfectconv.pbox(a,b,'^'),col='green')
+#  }
+#a = U(2,4)             # bases all above one
+#b = N(5,0.5)           # exponents all positive
+#checkem(a,b)
+#
+#a = U(2,4)             # bases all above one
+#b = N(2,1)             # positive and negative exponents
+#checkem(a,b)
+#
+#a = U(0.2,0.4)         # bases all below one but positive
+#b = N(5,0.5)           # exponents all positive
+#checkem(a,b)
+#
+#a = U(0.2,0.4)         # bases all below one but positive
+#b = N(2,1)             # positive and negative exponents
+#checkem(a,b)
 
 negativeconv = negativeconv.pbox = function(a,b,op='+') {                # negative (PQD) dependence
   if (op %in% c('-')) return(positiveconv.pbox(a, -b, '+'))
@@ -2932,6 +2959,9 @@ and.pbox <- function(a,b) env.pbox(pmax.pbox(shift.pbox(-1,frechetconv.pbox(a,b)
 
 or.pbox <- function(a,b) env.pbox(pmax.pbox(a,b),pmin.pbox(1,frechetconv.pbox(a,b)) )
 
+# N.B. The preceding four logical function are skipping over the fundamental question of dependence 
+# at two levels in logical operations.  The resolution of this issue is still an open research question.
+
 
 ####################
 # In-fix Operators #
@@ -2971,7 +3001,7 @@ or.pbox <- function(a,b) env.pbox(pmax.pbox(a,b),pmin.pbox(1,frechetconv.pbox(a,
 "%/+/%" <- function(x,y) perfectconv.pbox(x,y,'+');                 "%/-/%" <- function(x,y) perfectconv.pbox(x,y,'-')
 "%/*/%" <- "%/x/%" <- function(x,y) perfectconv.pbox(x,y,'*');      "%///%" <- "%/div/%" <- function(x,y) perfectconv.pbox(x,y,'/')
 "%/m/%" <- function(x,y) perfectconv.pbox(x,y,'pmin');              "%/M/%" <- function(x,y) perfectconv.pbox(x,y,'pmax')
-"%/^/%" <- function(x,y) perfectexp.pbox(x,y,'^') # what restrictions are there on the arguments?
+"%/^/%" <- function(x,y) perfectconv.pbox(x,y,'^')      # what restrictions are there on the arguments?
 "%/</%" <- function(x,y) prob.pbox(oppositeconv.pbox(x,negate(y),'+'),0);   "%/>/%" <- function(x,y) xprob.pbox(oppositeconv.pbox(y,negate.pbox(x),'+'),0)
 "%/<=/%" <- function(x,y) xprob.pbox(oppositeconv.pbox(x,negate(y),'+'),0);   "%/>=/%" <- function(x,y) prob.pbox(oppositeconv.pbox(y,negate.pbox(x),'+'),0)
 # "%/&/%" <- function(x,y) perfectand.pbox(x,y);                     "%/|/%" <- function(x,y) perfector.pbox(x,y)
@@ -4003,12 +4033,19 @@ env1.2 <- function(dname, i, ...) {
    do.call(dname,list(left(i), ...)),
    do.call(dname,list(right(i), ...)))
  Pbox$plotting.every <- safe
- a@dids = paste('PB',uniquepbox(),sep='')
+ a@id = paste('PB',uniquepbox(),sep='')
+ a@dids = a@id
+ if (!missing(opposite)) a@bob <- -opposite@bob 
+ if (!missing(perfect))  a@bob <- perfect@bob
+ if (!missing(depends))  a@dids = paste(a@dids, dids(depends))
+ if (!missing(name))     a@name <- name
  if (Pbox$plotting.every) try(plot.pbox(a))
- return(a)
+ a = pbox(a, ...)
+  return(a)
  }
 
-env2.4 <- function(dname, i, j, ...) {
+env2.4 = function(dname, i, j, perfect=NULL, opposite=NULL, depends=NULL, name=NULL, ...) {
+#env2.4 = function(dname, i, j, ...) {
  safe = Pbox$plotting.every
  Pbox$plotting.every <- FALSE
  a = env(
@@ -4017,12 +4054,19 @@ env2.4 <- function(dname, i, j, ...) {
    do.call(dname,list(left(i), right(j), ...)),
    do.call(dname,list(right(i), right(j), ...)))
  Pbox$plotting.every <- safe
- a@dids = paste('PB',uniquepbox(),sep='')
+ a@id = paste('PB',uniquepbox(),sep='')
+ a@dids = a@id
+ if (!missing(opposite)) a@bob <- -opposite@bob 
+ if (!missing(perfect))  a@bob <- perfect@bob
+ if (!missing(depends))  a@dids = paste(a@dids, dids(depends))
+ if (!missing(name))     a@name <- name
  if (Pbox$plotting.every) try(plot.pbox(a))
+ a = pbox(a, ...)
  return(a)
  }
 
-env2.2 <- function(dname, i, j, ...) {
+env2.2 = function(dname, i, j, perfect=NULL, opposite=NULL, depends=NULL, name=NULL, ...) {
+ # if used for functions other than uniform and loguniform, revise assignment of a@shape below
  safe = Pbox$plotting.every
  Pbox$plotting.every <- FALSE
 #a = env(
@@ -4037,16 +4081,22 @@ env2.2 <- function(dname, i, j, ...) {
     }
  a = U_()
  Pbox$plotting.every <- safe
- a@dids = paste('PB',uniquepbox(),sep='')
- if (Pbox$plotting.every) try(plot.pbox(a))
+ a@id = paste('PB',uniquepbox(),sep='')
+ a@dids = a@id
+ if (!missing(opposite)) a@bob <- -opposite@bob 
+ if (!missing(perfect))  a@bob <- perfect@bob
+ if (!missing(depends))  a@dids = paste(a@dids, dids(depends))
+ if (!missing(name))     a@name <- name
  if (identical(dname,Sloguniform)) a@shape = 'loguniform' else a@shape = 'uniform'
+ if (Pbox$plotting.every) try(plot.pbox(a))
+ a = pbox(a, ...)
  return(a)
  }
  
 env3.8 <- function(dname, i,j,k, ...) {   # improve by not duplicating if an argument is scalar
- safe = Pbox$plotting.every 
- Pbox$plotting.every <- FALSE
- a = env(
+  safe = Pbox$plotting.every 
+  Pbox$plotting.every <- FALSE
+  a = env(
    do.call(dname,list(left(i),left(j), left(k), ...)),
    do.call(dname,list(left(i),right(j), left(k), ...)),
    do.call(dname,list(left(i),left(j), right(k), ...)),
@@ -4056,9 +4106,15 @@ env3.8 <- function(dname, i,j,k, ...) {   # improve by not duplicating if an arg
    do.call(dname,list(right(i),left(j), right(k), ...)),
    do.call(dname,list(right(i),right(j), right(k), ...)))
   Pbox$plotting.every <- safe
- a@dids = paste('PB',uniquepbox(),sep='')
- if (Pbox$plotting.every) try(plot.pbox(a))
- return(a)
+  a@id = paste('PB',uniquepbox(),sep='')
+  a@dids = a@id
+  if (!missing(opposite)) a@bob <- -opposite@bob 
+  if (!missing(perfect))  a@bob <- perfect@bob
+  if (!missing(depends))  a@dids = paste(a@dids, dids(depends))
+  if (!missing(name))     a@name <- name
+  if (Pbox$plotting.every) try(plot.pbox(a))
+  a = pbox(a, ...)
+  return(a)
   }
 
 # bernoulli <- function(p, ...) env1.2(Sbernoulli,p, ...)
@@ -4323,7 +4379,7 @@ MMbinomial <- function(x) {a = mean(x); b= sd(x); binomial(round(a/(1-b^2/a)), 1
 MMchisquared <- function(x) chisquared(round(mean(x)))
 MMexponential <- function(x) exponential(mean(x))
 MMF <- function(x) {w = 2/(1-1/mean(x)); F(round((2*w^3 - 4*w^2) / ((w-2)^2 * (w-4) * sd(x)^2 - 2*w^2)), round(w))}
-MMgamma <- function(x) {a = mean(x); b= sd(x); gamma(b^2/a, (a/b)^2)}  #gamma1(a, b) ~ gamma(b²/a, (a/b)²)
+MMgamma <- function(x) {a = mean(x); b= sd(x); gamma(b^2/a, (a/b)^2)}  #gamma1(a, b) ~ gamma(bÂ²/a, (a/b)Â²)
 MMgeometric <- MMpascal <- function(x) geometric(1/(1+mean(x)))
 MMgumbel <- MMextremevalue <- function(x) gumbel(mean(x) - 0.57721* sd(x) * sqrt(6)/ pi, sd(x) * sqrt(6)/ pi)
 MMlognormal <- function(x) lognormal(mean(x), sd(x))
