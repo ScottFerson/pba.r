@@ -1,170 +1,171 @@
 RStudio = FALSE
-############################################################################
-# Probability Bounds Analysis S4 library for the R Language                
-#                                                  
-# Authors: Scott Ferson and Jason O'Rawe
-############################################################################
+#######################################################
+# Probability Bounds Analysis S4 Library for R                                              
+# Developed by Scott Ferson and Jason O'Rawe
+#######################################################
 #
-# Place this file on your computer and, from within R, select 
-# File/Source R code... from the main menu.  Select this file and
-# click the Open button to read it into R.  You should see the 
-# completion message ":pbox> library loaded".  Once the library 
-# has been loaded, you can define probability distributions 
+# Place this file on your computer and, from within R, select File/Source R code... from 
+# the main menu. Select this file and click the Open button to read it into R. You should 
+# see the completion message ":pbox> library loaded". Once the library has been loaded,
+# you can define probability distributions
 #
-#       a = normal(5,1)
-#       b = uniform(2,3)
+#     a = normal(5,1)
+#     b = uniform(2,3)
 #
-# and  p-boxes 
+# and p-boxes
 #
-#       c = meanvariance(0,2)
-#       d = lognormal(interval(6,7), interval(1,2))
-#       e = mmms(0,10,3,1)
+#     c = meanvariance(0,2)    
+#     d = lognormal(interval(6,7), interval(1,2))   
+#     e = mmms(0,10,3,1) 
 #
-# and perform mathematical operations on them, including the 
-# Frechet convolution such as 
-#
-#       a  %+%  b
-#
+# and perform mathematical operations on them, including the Frechet convolution like
+# 
+#     a  %+%  b
+# 
 # or a traditional convolution assuming independence
 #
-#       a  %|+|%  b
+#     a  %|+|%  b
 #
-# If you do not enclose the operator inside percent signs or 
-# vertical bars, the software tries to figure out how the
-# arguments are related to one another. Expressions such as
+# If you do not enclose the operator inside percent signs or vertical bars, the software 
+# tries to figure out how the arguments are related to one another. Expressions such as
 #
-#       a + b
-#       a + log(a) * b
-#       
-# autoselect the convolution to use.  If the software cannot 
-# tell what dependence the arguments have, it uses a Frechet 
-# convolution.  
+#     a + b  
+#     a + log(a) * b    
 #
-# Variables containing probability distributions or p-boxes 
-# are assumed to be independent of one another unless one 
-# formally depends on the other, which happens if one was 
-# created as a function of the other. Assigning a variable 
-# containing a probability distribution or a p-box to another 
-# variable makes the two variables perfectly dependent.  To 
-# make an independent copy of the distribution or p-box, use 
-# the samedistribution function, e.g., c = samedistribution(a).
-#
-# By default, separately constructed distributions such as 
-#
-#       a = normal(5,1)
-#       b = uniform(2,3)
-#
-# will be assumed to be independent (so their convolution a+b 
-# will be a precise distribution).  You can acknowledge any
-# dependencies between uncertain numbers by mentioning their 
-# dependence when you construct them with expressions like 
-#
-#       b = pbox(uniform(2,3), depends=a)
-#
-# You can also make an existing uncertain number dependent on 
-# another with an assignment like
-#
-#       b = pbox(b, depends=a)
-#
-# If the variables are mutually dependent, be sure to make the 
-# reciprocal assignment
-#
-#       a = pbox(a, depends=b)
-#
+# will autoselect the convolution to use. If the software cannot tell what dependence the 
+# arguments have, it uses a Frechet convolution, which is conservative because it makes 
+# no assumption about what dependence the operands might have.
+# 
+# Variables containing probability distributions or p-boxes are assumed to be independent 
+# of one another unless one formally depends on the other, which happens if one was 
+# created as a function of the other. Assigning a variable containing a p-box or probability 
+# distribution to another variable makes the two variables perfectly dependent. To make 
+# an independent copy of the distribution or p-box, use the samedistribution function, e.g., 
+# c = samedistribution(a).
+# 
+# By default, separately constructed distributions such as
+# 
+#     a = normal(5,1)    
+#     b = uniform(2,3)
+# 
+# will be assumed to be independent (so their convolution a+b will be a precise distribution). 
+# You can acknowledge any dependencies between uncertain numbers by mentioning their 
+# dependence when you construct them with expressions like
+# 
+#     b = pbox(uniform(2,3), depends=a)
+# 
+# You can also make an existing uncertain number dependent on another with an assignment 
+# like
+# 
+#     b = pbox(b, depends=a)
+# 
 # You can acknowledge several dependencies at a time, as with
-#
-#       d = pbox(d, depends=c(a,b))
-#
-# but you can't mention an uncertain number in the 'depends' 
-# array before the uncertain number exists.
-#
-# As alternatives to independence and (unspecified) dependence, 
-# you can also specify that an uncertain number is perfectly or 
-# oppositely dependent on another.
-#
-#       d = beta(2,5, perfect=a)
+# 
+#     d = pbox(d, depends=c(a,b))
+# 
+# but you can't mention a variable in the 'depends' array before the value exists. Also, it 
+# only makes sense to specify such dependence among distributions and p-boxes. Using a 
+# scalar or an interval in the 'depends' array will precipitate an error.
+# 
+# As alternatives to independence and (unspecified) dependence, you can also specify that 
+# an uncertain number is perfectly or oppositely dependent on another.
+# 
+#     d = beta(2,5, perfect=a)
+# 
 # or
-#       d = beta(2,5, opposite=a)
-#
-# Perfect and opposite dependencies are automatically mutual, 
-# so it is not necessary to explicitly make the reciprocal 
-# assignment.  Thus
-#
-#       a = N(5,1)
-#       b = U(2,3, perfect=a)
-#       c = N(15,2, perfect=b)
-#
-# suffices to link c with a and vice versa.  The assignments
-# automatically make a, b, and c mutually perfectly dependent.  
-# Naturally, it is not possible to be perfectly (or oppositely) 
-# dependent on more than one quantity unless they are also 
-# mutually dependent in the same way.  The indep, perfect, 
-# opposite and depends functions check whether their two 
-# arguments are independent, perfectly dependent, oppositely 
-# dependent, or dependent, respectively.  The depends function 
-# returns an interval code that is zero if its arguments are 
-# independent, +1 if they are perfect, etc.
-#
-# The defined mathematical operators include 
-#
-#               Auto  Frechet  Perfect Opposite Independent
-# Addition:    	 +	%+%	%/+/%	%o+o%	  %|+|%		 	 
-# Subtraction:   -	%-%   	%/-/%	%o-o%	  %|-|%		 	 
-# Product: 	 *	%*%	%/*/%	%o*o%	  %|*|%		 	 
-# Division: 	 /	%/%  	%///%	%o/o%	  %|/|%	 		 
-# Minimum: 		%m%	%/m/%	%omo%	  %|m|%		 	 
-# Maximum:		%M%	%/M/%	%oMo%	  %|M|%		 	
-# Powers:	 ^	%^%	%/^/%	%o^o%	  %|^|%		 	 
-# Less than:	 <	%<%	%/</%	%o<o%	  %|<|%		
-# Greater than:	 >	%>%	%/>/%	%o>o%	  %|>|%		 
-# Less or equal: <=	%<=%	%/<=/%	%o<=o%	  %|<=|%		
-# Greater/equal: >=	%>=%	%/>=/%	%o>=o%	  %|>=|%		 
-# Conjunction:		%&%			  %|&|%		 
-# Disjunction:		%|%			  %|||%		 
-#
-# Note that the operators %*% and %/% (which in R normally
-# invoke matrix multiplication and integer division) have 
-# been reassigned.  Also notice that &, |, &&, || have not 
-# been extended for uncertain numbers.  You must use the 
-# operators with percent signs to compute conjunctions or 
-# disjunctions.
 # 
-# In addition to these "in-fix" operators, several binary 
-# functions are also defined such as 
-#
-#       env, imp, pmin, pmax, smin, smax, and, or, not
-#
-# Note that the imp function gives the intersection of uncertain
-# numbers.  Several standard mathematical transformations have 
-# also been extended to handle p-boxes, including
-#
-#       exp, log, sqrt, atan, abs, negate, reciprocate, int
+#     d = beta(2,5, opposite=a)
 # 
-# Use the output commands to see the resulting uncertain numbers, 
-# such as
-#
-#       show(c)
-#       summary(d)
-#       plot(a)
-#       lines(b, col='blue')
-#
-# There are a variety of standard functions you can use with 
-# distributions and p-boxes, such as 
-#
-#       mean(a)
-#       sd(b)
-#       var(b)
-#       median(c)
-#
+# These dependency specifications are automatically mutual, so it is not necessary to 
+# explicitly make the reciprocal assignment. Thus
+# 
+#     a = N(5,1)  
+#     b = U(2,3, perfect=a)  
+#     c = N(15,2, perfect=b)
+# 
+# suffices to link c with a and vice versa. The assignments automatically make a, b, and c 
+# mutually perfectly dependent. Naturally, it is not possible to be perfectly (or oppositely) 
+# dependent on more than one quantity unless they are also mutually dependent in the 
+# same way. The indep, perfect, opposite and depend functions check whether their two 
+# arguments are independent, perfectly dependent, oppositely dependent, or dependent, 
+# respectively. The depend function returns an interval code that is zero if its arguments 
+# are independent, +1 if they are perfect, [-1,+1] if they have an unknown dependence, 
+# etc.
+# 
+# The defined mathematical infix operators include these tabled below.
+# 				Auto 	Frechet 	Perfect 	Opposite 	Independent
+# Addition 		+ 		%+% 	%/+/% 	%o+o% 	%|+|%
+# Subtraction 		- 		%-% 	%/-/% 	%o-o% 	%|-|%
+# Product 			* 		%*% 	%/*/% 	%o*o% 	%|*|%
+# Division 		/ 		%/% 	%///% 	%o/o% 	%|/|%
+# Minimum 		%m% 	%/m/% 	%omo% 	%|m|%
+# Maximum 		%M% 	%/M/% 	%oMo% 	%|M|%
+# Powers 			^ 		%^% 	%/^/% 	%o^o% 	%|^|%
+# Less than 		< 		%<% 	%/</% 	%o<o% 	%|<|%
+# Greater than 		> 		%>% 	%/>/% 	%o>o% 	%|>|%
+# Less or equal 		<= 		%<=% 	%/<=/% 	%o<=o% 	%|<=|%
+# Greater/equal 	>= 		%>=% 	%/>=/% 	%o>=o% 	%|>=|%
+# Conjunction 				%&% 			%|&|%
+# Disjunction 				%|% 			%|||%
+# 
+# The basic operator symbols +, -, *, / and ^ have been overloaded so that they also work 
+# with uncertain numbers, i.e., probability distributions, p-boxes and intervals. Note that 
+# the operators %*% and %/% (which in R normally invoke matrix multiplication and 
+# integer division) have been reassigned (and not overloaded, so they no longer do matrix 
+# multiplication and integer division). Also notice that there are no autoselected infix 
+# operators for minimum and maximum. The pmin and pmax functions will return the 
+# Frechet convolutions. Also notice that &, |, &&, || have not been overloaded for 
+# uncertain numbers because R has sealed those operators. You must use the operators 
+# with percent signs to compute conjunctions or disjunctions.
+# 
+# Alternatively, the various convolution operations can be accessed by calling functions:
+# 
+#     autoselect(x,y,op)  
+#     frechetconv.pbox(x,y,op)  
+#     perfectconv.pbox(x,y,op)  
+#     oppositeconv.pbox(x,y,op)  
+#     conv.pbox(x,y,op)  
+#     positiveconv(x,y,op)  
+#     negativeconv(x,y,op)  
+# 
+# where x and y are the operands and op denotes the operation, such as '+'.
+# 
+# In addition to these "in-fix" operators, several binary functions are also defined such as
+# 
+#     env, imp, pmin, pmax, smin, smax, and, or, not
+# 
+# Note that the imp function gives the intersection of uncertain numbers. Several standard 
+# mathematical transformations have also been extended to handle p-boxes, including
+# 
+#     exp, log, sqrt, atan, abs, negate, reciprocate, int
+# 
+# Use the output commands to see the resulting uncertain numbers, such as
+# 
+#     show(c)
+#     summary(d)
+#     plot(a)
+#     lines(b, col='blue')
+# 
+# There are a variety of standard functions you can use with distributions and p-boxes, such 
+# as
+# 
+#     mean(a)
+#     sd(b)
+#     var(b)
+#     median(c)
+# 
 # as well as some new functions such as
+# 
+#     breadth(d)
+#     leftside(c)
+#     left(a)
+#     prob(a, 3)
+#     cut(a, 0.2)
+# 
+# This R library is under development. We would appreciate your comments, questions and 
+# suggestions.
 #
-#       breadth(d)
-#       leftside(c)
-#       left(a)
-#       prob(a, 3)
-#       cut(a, 0.2)
-#
-###############################################################
+#######################################################
 
 
 ####################
@@ -485,7 +486,8 @@ pbox <- function(u, d=u, shape=NULL, name=NULL, ml=NULL, mh=NULL, vl=NULL, vh=NU
   if (!missing(dids))      p@dids <- paste(p@id,dids)          
   if (!missing(opposite)) p@bob <- -opposite@bob 
   if (!missing(perfect))  p@bob <- perfect@bob
-  if (!(missing(depends) || is.null(depends)))  p@dids <- paste(p@id,dids(depends))
+#  if (!(missing(depends) || is.null(depends)))  p@dids <- paste(p@id,dids(depends))
+  if (!missing(depends) )  p@dids <- paste(p@dids, p@id, dids(depends))
   if (!missing(name))     p@name <- name
   if (Pbox$plotting.every) try(plot.pbox(p))
   checkmoments(p)
@@ -2198,7 +2200,46 @@ mix.equal.interval <- function(x) env(mix.equal.numeric(left(x)), mix.equal.nume
 #   pbox(u,d)
 #   }
 
-mix.equal.pbox <- function(x, ...) return(mix.pbox(x))
+#mix.equal.pbox <- function(x, ...) return(mix.pbox(x))
+
+mix.equal.pbox <- mixture.equal.pbox <- function(x) {
+  k = length(x)
+  n = Pbox$steps
+  u <- d <- NULL
+  ml=mh=vl=vh = 0
+  for (i in 1:k) {
+    u <- c(u,x[[i]]@u)
+    d <- c(d,x[[i]]@d)
+	ml = ml + x[[i]]@ml / k
+	mh = mh + x[[i]]@mh / k
+	vl = vl + ((x[[i]]@ml)^2 + x[[i]]@vl) / k
+	vh = vh + ((x[[i]]@mh)^2 + x[[i]]@vh) / k
+	}
+  u = sort(u)
+  d = sort(d)
+  u = u[ii() * k * n + 1]     # e.g.,  {1...397}
+  d = d[jj() * k * n]         # e.g.,  {4...400}
+  return(pbox(u, d, ml=ml, mh=mh, vl=vl-mh^2, vh=vh-ml^2))
+  }
+  
+# check moments of equal mixture of p-boxes
+#many = 13
+#b = rep(pbox(0),many)
+#for (i in 1:many) b[[i]] = U(2 + i, i*5)
+#x = NULL
+#for (i in 1:many) x = c(x, runif(1000, 2 + i, i*5))
+#B = mixture.equal.pbox(b)
+#B
+#mean(x); var(x)
+#m=v=NULL; for (i in 1:many) {
+#  mi = (2+i+i*5)/2; 
+#  vi = ((i*5)-(2 + i))^2/12;  
+#  m = c(m, mi);  
+#  v = c(v, vi); 
+#  }
+#mean(m); mean(m^2 + v) - mean(m)^2
+#for (i in 1:many) lines(b[[i]],col='gray')
+#lines(B)
 
 mix.equal.list <- function(x) { 
   if (!all(unlist(lapply(x,is.uncnum)))) stop('Arguments to mixture must be (a list of) scalars, intervals, probability distributions or p-boxes')
@@ -2207,15 +2248,6 @@ mix.equal.list <- function(x) {
   for (i in 1:k) A[[i]] = pbox(x[[i]])
   mix.equal.pbox(A)
   }  
-
-mix.equal <- function(x, ...) {
-  el <- list(...)
-  k = length(el)
-  A = rep(list(pbox(0)),k+1)
-  A[[1]] = pbox(x)
-  for (i in 1:k) A[[1+i]] = pbox(el[[i]])
-  mix.equal.pbox(A)
-  }
 
 mix.equal <- function(...) {
   el <- list(...)
@@ -2291,12 +2323,12 @@ mixtureexamples <- function() {
   everysafe = Pbox$plotting.every 
   Pbox$plotting.every <- FALSE
   old.par <- par(mfrow=c(2,3))
-  a = mixture(interval(1,2), U(3,4), N(5,1), 3, 5);  plot(a)
-  a = mixture(5, interval(1,2), U(3,4), N(5,1), 3);  plot(a)
-  a = mixture(U(3,4), interval(1,2), N(5,1), 3, 5);  plot(a)
-  #a = mixture(pbox(1,2), U(3,4), N(5,1), 3, 5);  plot(a)
-  a = mixture.list(list(interval(1,2), U(3,4), N(5,1), 3, 5));  plot(a)
-  # last example simulation confirms rigor (but also reveals apparent puffiness on the u-side)
+  shadow = function() {lines(interval(1,2),col='gray'); lines(U(3,4),col='gray'); lines(N(5,1),col='gray'); abline(v= 3,col='gray'); abline(v= 5,col='gray'); lines(a,lwd=3)}
+  a = mixture(interval(1,2), U(3,4), N(5,1), 3, 5);  plot(a); shadow()
+  a = mixture(5, interval(1,2), U(3,4), N(5,1), 3);  plot(a); shadow()
+  a = mixture(U(3,4), interval(1,2), N(5,1), 3, 5);  plot(a); shadow()
+  #a = mixture(pbox(1,2), U(3,4), N(5,1), 3, 5);  plot(a); shadow()
+  a = mixture.list(list(interval(1,2), U(3,4), N(5,1), 3, 5));  plot(a); shadow()
   topsafe = Pbox$tOp
   botsafe = Pbox$bOt
   stepssafe = Pbox$steps
@@ -2313,7 +2345,8 @@ mixtureexamples <- function() {
   ra = c(ra, runif(many,ru,rv))
   edf(ra)
   Pbox$steps <- 10
-  a = mixture.list(list(uniform(ru,rv),normal(rm,rs)));  plot(a)
+#  a = mixture.list(list(uniform(ru,rv),normal(rm,rs)));  plot(a)  # this example reveals the apparent puffiness of mixture.list() on the u-side 
+  a = mix.equal.pbox(list(uniform(ru,rv),normal(rm,rs)));  plot(a)
   #write(a,'c:/jerry.prn')
   edf(ra)
   lines(a)
@@ -3233,6 +3266,77 @@ if (distr.loaded)  quiet <- setMethod('>=', c('Distribution','pbox'),function(e1
 # the functions and.pbox, andI.pbox, or.pbox, orI.pbox.
 
 
+################################################################
+# testing dependency tracking and autoselection of operators
+# 
+#par(mfrow=c(3,3))  
+#a = N(5,1)
+#print(a)
+#b = N(5,1, depends=a)
+#print(b)
+#c = log(b)
+#print(c)
+#
+#str(a)
+#str(b)
+#str(c)
+#
+#depend(a,b)
+#depend(a,c)
+#depend(b,c)
+#
+#a + b    # should be frechet
+#a + c    # should be frechet
+#
+#plot(b %|+|% c, col='red')
+#lines(b %/+/% c, col='green')
+#lines(b+c, col='black')  # should be perfect
+#
+#a = N(5,1)  
+#b = U(2,3, perfect=a) 
+#c = N(15,2, perfect=b)
+#d = log(c)
+#
+#depend(a,b)
+#depend(a,c)
+#depend(a,d)
+#depend(b,c)
+#depend(b,d)
+#depend(c,d)
+#
+#plot(a %|+|% b, col='red')
+#lines(a %/+/% b, col='green')
+#lines(a + b, col='black')# should be perfect
+#
+#plot(a %|+|% c, col='red')
+#lines(a %/+/% c, col='green')
+#lines(a + c, col='black')# should be perfect
+#
+#plot(c %|+|% b, col='red')
+#lines(c %/+/% b, col='green')
+#lines(c + b, col='black')# should be perfect
+#
+#plot(a %|+|% d, col='red')
+#lines(a %/+/% d, col='green')
+#lines(a + d, col='black')# should be perfect
+#
+#plot(b %|+|% d, col='red')
+#lines(b %/+/% d, col='green')
+#lines(b + d, col='black')# should be perfect
+#
+#plot(c %|+|% d, col='red')
+#lines(c %/+/% d, col='green')
+#lines(c + d, col='black')# should be perfect
+#
+#str(a)
+#str(b)
+#str(c)
+#str(d)
+#
+# should not see any green answers
+
+
+
 #######################################################################
 # Some inverse probability distributions not already implemented in R #
 #######################################################################
@@ -4026,10 +4130,11 @@ wilcoxon <- function(m, n, name='', sc=TRUE){
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
  
-env1.2 <- function(dname, i, ...) {
+env1.2 <- function(dname, i,  perfect=NULL, opposite=NULL, depends=NULL, name=NULL, ...) {
  safe = Pbox$plotting.every
  Pbox$plotting.every <- FALSE
- a = env(
+ if (is.scalar(i)) a = do.call(dname,list(left(i), ...)) else
+  a = env(
    do.call(dname,list(left(i), ...)),
    do.call(dname,list(right(i), ...)))
  Pbox$plotting.every <- safe
@@ -4048,7 +4153,8 @@ env2.4 = function(dname, i, j, perfect=NULL, opposite=NULL, depends=NULL, name=N
 #env2.4 = function(dname, i, j, ...) {
  safe = Pbox$plotting.every
  Pbox$plotting.every <- FALSE
- a = env(
+ if (is.scalar(i) && is.scalar(j)) a = do.call(dname,list(left(i),left(j), ...)) else
+  a = env(
    do.call(dname,list(left(i), left(j), ...)),
    do.call(dname,list(right(i), left(j), ...)),
    do.call(dname,list(left(i), right(j), ...)),
@@ -4079,7 +4185,7 @@ env2.2 = function(dname, i, j, perfect=NULL, opposite=NULL, depends=NULL, name=N
     if ((left(i)<=left(j)) & (right(j)<=right(i))) return(env(dname(left(i),left(j)),dname(left(i),right(j)),right(j))) else
     if (right(j)>=left(i)) return(env(left(i),right(j),dname(left(i),right(j)))) else stop('Minimum must be smaller than maximum')
     }
- a = U_()
+  if (is.scalar(i) && is.scalar(j)) a = do.call(dname,list(left(i),left(j), ...)) else a = U_()
  Pbox$plotting.every <- safe
  a@id = paste('PB',uniquepbox(),sep='')
  a@dids = a@id
@@ -4093,9 +4199,10 @@ env2.2 = function(dname, i, j, perfect=NULL, opposite=NULL, depends=NULL, name=N
  return(a)
  }
  
-env3.8 <- function(dname, i,j,k, ...) {   # improve by not duplicating if an argument is scalar
+env3.8 <- function(dname, i,j,k, perfect=NULL, opposite=NULL, depends=NULL, name=NULL,  ...) {   # improve by not duplicating if an argument is scalar
   safe = Pbox$plotting.every 
   Pbox$plotting.every <- FALSE
+  if (is.scalar(i) && is.scalar(j) && is.scalar(k)) a = do.call(dname,list(left(i),left(j), left(k), ...)) else
   a = env(
    do.call(dname,list(left(i),left(j), left(k), ...)),
    do.call(dname,list(left(i),right(j), left(k), ...)),
@@ -4421,50 +4528,6 @@ MLweibull <- function(x, shapeinterval=c(0.001,500)) {
 # Confidence boxes (c-boxes)
 ########################################
 
-# KN <- function(k,n) return(env(beta(k, n-k+1), beta(k+1, n-k)))
-# km <- function(k,m) return(env(beta(k, m+1),beta(k+1, m)))
-
-KN <- function(k,n) {
-  if ((left(k) < 0)  || (right(n) < right(k))) stop('Improper arguments to function KN')
-  Bzero <- 1e-6
-  Bone <- 1-Bzero
-  return(pmin(pmax(env(Sbeta(left(k),right(n)-left(k)+1),Sbeta(right(k)+1,pmax(0,left(n)-right(k)))),Bzero),Bone))
-  }
-  
-km <- function(k,m) {
-  if ((left(k) < 0)  || (left(m) < 0)) stop('Improper arguments to function km')
-  Bzero <- 1e-6
-  Bone <- 1-Bzero
-  return(pmin(pmax(env(Sbeta(left(k),right(m)+1),Sbeta(right(k)+1,left(m))),Bzero),Bone))
-  }
-
-uchenna <- function(kbox, mbox) { # extremely slow if Pbox$steps is larger than 25 or so
-  n = Pbox$steps
-  b = rep(pbox(0), n^2)
-  kcuts = mcuts = c(ii()+0.5/n)
-  nxt = 0
-  for (i in kcuts) {
-    k = cut(kbox, i)
-    for (j in mcuts) {
-      m = cut(mbox, j)
-      cat('k=',sayint(k),'; m=',sayint(m))
-      nxt = nxt + 1
-      b[[nxt]] = km(k,m)  # using KN instead could encounter cases where n < k, which makes no sense
-      lines(b[[nxt]])
-      }
-    }
-  return(mixture.pbox(b))
-  }
-
-uchenna <- function(kbox, mbox) {
-  n = Pbox$steps
-  b = rep(pbox(0), n)
-  kk = sample.int(n, n, replace=TRUE)
-  mm = sample.int(n, n, replace=TRUE)
-  for (i in 1:n) b[[i]] = km(interval(kbox@u[[kk[[i]]]], kbox@d[[kk[[i]]]]),interval(mbox@u[[mm[[i]]]], mbox@d[[mm[[i]]]]))
-  return(mixture.pbox(b))
-  }
-
 # x[i] ~ Bernoulli(p), x[i] is either 0 or 1
 
 CBbernoulli <- function(x) {n <- length(x); k <- sum(x); return(env(bernoulli(k/(n+1)), bernoulli((k+1)/(n+1))))}
@@ -4552,6 +4615,121 @@ CBnonparametric.deconvolution <- function(x, error) {# i.e., the c-box for Y
     w = Q / sum( Q )
     env(mixture(z,w), mixture(c(z[-1],Inf),w))
     }    
+
+ci <- confidenceinterval <- function(b, c=0.95, alpha=(1-c)/2, beta=1-(1-c)/2) interval(left(cut(b,alpha)), right(cut(b,beta)))
+
+Bzero <- 1e-6     # otherwise beta distributions touch zero which is inconvenient in arithmetical operations
+Bone <- 1-Bzero
+
+KN <- function(k,n) {
+  if ((left(k) < 0)  || (right(n) < right(k))) stop('Improper arguments to function KN')
+  Bzero <- 1e-6
+  Bone <- 1-Bzero
+  return(pmin(pmax(env(Sbeta(left(k),right(n)-left(k)+1),Sbeta(right(k)+1,pmax(0,left(n)-right(k)))),Bzero),Bone))
+  }
+  
+km <- function(k,m) {
+  if ((left(k) < 0)  || (left(m) < 0)) stop('Improper arguments to function km')
+  if (is.pbox(k) || is.pbox(m)) return(uchenna(pbox(k),pbox(m)))
+  return(pmin(pmax(env(Sbeta(left(k),right(m)+1),Sbeta(right(k)+1,left(m))),Bzero),Bone))
+  }
+
+#uchenna <- function(kbox, mbox) { # EXTREMELY slow if Pbox$steps is larger than 25 or so
+#  n = Pbox$steps
+#  b = rep(pbox(0), n^2)
+#  kcuts = mcuts = c(ii()+0.5/n)
+#  nxt = 0
+#  for (i in kcuts) {
+#    k = cut(kbox, i)
+#    for (j in mcuts) {
+#      m = cut(mbox, j)
+#      cat('k=',sayint(k),'; m=',sayint(m))
+#      nxt = nxt + 1
+#      b[[nxt]] = km(k,m)  # using KN instead could encounter cases where n < k, which makes no sense
+#      lines(b[[nxt]])
+#      }
+#    }
+#  return(mixture.pbox(b))
+#  }
+
+#uchenna <- function(kbox, mbox) { # faster, but still awfully slow
+#  n = Pbox$steps
+#  N = 4 * n
+#  b = rep(pbox(0), N)
+#  kk = sample.int(n, N, replace=TRUE)
+#  mm = sample.int(n, N, replace=TRUE)
+#  for (i in 1:N) b[[i]] = km(interval(kbox@u[[kk[[i]]]], kbox@d[[kk[[i]]]]),interval(mbox@u[[mm[[i]]]], mbox@d[[mm[[i]]]]))
+#  u <- d <- NULL
+#  for (i in 1:N) {
+#    u <- c(u,b[[i]]@u)
+#    d <- c(d,b[[i]]@d)
+#    }
+#  u = sort(u)
+#  d = sort(d)
+#  u = u[ii() * N + 1]     # e.g.,  {1...397}
+#  d = d[jj() * N]         # e.g.,  {4...400}
+#  return(pbox(u,d))
+#  }
+
+uchenna <- function(kbox, mbox) { # computes the km(k,m) c-box when k and m are themselves c-boxes or p-boxes, as created by gilding for instance
+  n = Pbox$steps
+  N = n^2
+  Lk = Lm = Rk = Rm = NULL
+  for (i in 1:n) for (j in 1:n) {  
+    Lk = c(Lk, kbox@u[[i]])
+    Lm = c(Lm, mbox@d[[i]]+1)
+    Rk = c(Rk, kbox@d[[j]]+1)
+    Rm = c(Rm, mbox@u[[j]])
+    }
+  u = sort(qbeta(ii(), Lk, Lm))
+  d = sort(qbeta(jj(), Rk, Rm)) 
+  u = u[ii() * N + 1]     
+  d = d[jj() * N]         
+  return(pbox(u,d))
+  }
+
+################################################################
+# HISTORICAL codes 
+################################################################
+# P-box for the confidence distribution on a proportion given k successes out of n trials;  error if n<k #
+################################################################
+
+balchbox.0 = function(trials, successes, name='') {               # original formulation
+  if ((successes==0) && (trials==0)) return(pbox(0,1,shape='beta',name=name)) else
+  if (successes==trials) return(pbox(u=qbeta(ii(), successes, trials-successes+1),d=1,shape='beta',name=name)) else
+  if (successes==0) return(pbox(u=0,d=qbeta(jj(), successes+1,trials-successes),shape='beta',name=name)) else
+  pbox(u=qbeta(ii(), successes, trials-successes+1),d=qbeta(jj(), successes+1,trials-successes),shape='beta',name=name)
+  }
+
+balchbox <- function(n, k, name='') {                             # better moments
+  if ((k==0) && (n==0)) return(pbox(0,1,shape='beta',name=name))  # could be interval(0,1)
+  if (k==n) return(pbox(env(beta(k, n-k+1),1),name=name))
+  if (k==0) return(pbox(env(0,beta(k+1,n-k)),name=name))
+  return(pbox(env(beta(k, n-k+1),beta(k+1,n-k)),name=name))
+  }
+
+balchbox = function(n, k, name='') {                              # slightly faster
+  if (n<k) stop('The value of n (',n,') must be larger than or equal to k (',k,') in balchbox')
+  uu = function() qbeta(ii(), k, n-k+1)
+  dd = function() qbeta(jj(), k+1,n-k)
+  if ((k==0) && (n==0)) {u=0;    d=1 }   else
+  if (k==n)             {u=uu(); d=1}    else
+  if (k==0)             {u=0;    d=dd()} else 
+                        {u=uu(); d=dd()}
+  pbox(u=u,d=d,shape='beta',name=name)
+  }
+
+balch.ci <- function(b,p1=0.025,p2=1-p1) interval(left(cut(b,p1)), right(cut(b,p2)))
+
+#nk <- function(n, k, name='') {   # beta-binomial p-box implied by k successes out of n trials                         
+#  if ((k==0) && (n==0)) return(pbox(0,1,shape='beta-binomial',name=name))  # could be interval(0,1)
+#  if (k==n) return(pbox(env(BB(k, n-k+1, n), n),name=name))
+#  if (k==0) return(pbox(env(0,BB(k+1, n-k, n)),name=name))
+#  return(pbox(env(BB(k, n-k+1, n),BB(k+1, n-k, n)),name=name))
+#  }
+#
+# KN <- function(k,n) return(env(beta(k, n-k+1), beta(k+1, n-k)))
+# km <- function(k,m) return(env(beta(k, m+1),beta(k+1, m)))
 
 
 ########################################
@@ -5009,44 +5187,6 @@ RCdistributionCode <- function(distribname)
 RCdistributionName <- function(distribcode)
   RCdistribdirectory[[2,match(distribcode,RCdistribdirectory)/2+1]]
 
-
-##########################################################################################################
-# P-box for the confidence distribution on a proportion given k successes out of n trials;  error if n<k #
-##########################################################################################################
-
-balchbox.0 = function(trials, successes, name='') {               # original formulation
-  if ((successes==0) && (trials==0)) return(pbox(0,1,shape='beta',name=name)) else
-  if (successes==trials) return(pbox(u=qbeta(ii(), successes, trials-successes+1),d=1,shape='beta',name=name)) else
-  if (successes==0) return(pbox(u=0,d=qbeta(jj(), successes+1,trials-successes),shape='beta',name=name)) else
-  pbox(u=qbeta(ii(), successes, trials-successes+1),d=qbeta(jj(), successes+1,trials-successes),shape='beta',name=name)
-  }
-
-balchbox <- function(n, k, name='') {                             # better moments
-  if ((k==0) && (n==0)) return(pbox(0,1,shape='beta',name=name))  # could be interval(0,1)
-  if (k==n) return(pbox(env(beta(k, n-k+1),1),name=name))
-  if (k==0) return(pbox(env(0,beta(k+1,n-k)),name=name))
-  return(pbox(env(beta(k, n-k+1),beta(k+1,n-k)),name=name))
-  }
-
-balchbox = function(n, k, name='') {                              # slightly faster
-  if (n<k) stop('The value of n (',n,') must be larger than or equal to k (',k,') in balchbox')
-  uu = function() qbeta(ii(), k, n-k+1)
-  dd = function() qbeta(jj(), k+1,n-k)
-  if ((k==0) && (n==0)) {u=0;    d=1 }   else
-  if (k==n)             {u=uu(); d=1}    else
-  if (k==0)             {u=0;    d=dd()} else 
-                        {u=uu(); d=dd()}
-  pbox(u=u,d=d,shape='beta',name=name)
-  }
-
-balch.ci <- function(b,p1=0.025,p2=1-p1) interval(left(cut(b,p1)), right(cut(b,p2)))
-
-nk <- function(n, k, name='') {   # beta-binomial p-box implied by k successes out of n trials                         
-  if ((k==0) && (n==0)) return(pbox(0,1,shape='beta-binomial',name=name))  # could be interval(0,1)
-  if (k==n) return(pbox(env(BB(k, n-k+1, n), n),name=name))
-  if (k==0) return(pbox(env(0,BB(k+1, n-k, n)),name=name))
-  return(pbox(env(BB(k, n-k+1, n),BB(k+1, n-k, n)),name=name))
-  }
 
 ################################################################################## 
 # Subinterval Reconstitution 
