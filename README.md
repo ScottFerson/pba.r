@@ -58,6 +58,8 @@ will be a precise distribution).  You can acknowledge any
 dependencies between uncertain numbers by mentioning their 
 dependence when you construct them with expressions like 
 
+    b = uniform(2,3, depends=a)
+or
     b = pbox(uniform(2,3), depends=a)
 
 You can also make an existing uncertain number dependent on 
