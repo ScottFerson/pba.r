@@ -188,7 +188,7 @@ if ("quiet" %in% ls()) Pbox$scott.used.to.be.quiet <- quiet
 
 
 ########################################################
-# Class specification and general interval constructor #
+# Class specification and general interval #
 ########################################################
 
 interval.autocorrecting <- TRUE
@@ -484,7 +484,10 @@ pbox <- function(u, d=u, shape=NULL, name=NULL, ml=NULL, mh=NULL, vl=NULL, vh=NU
   if (!missing(vl))       p@vl <- pmax(vl,p@vl)
   if (!missing(vh))       p@vh <- pmin(vh,p@vh)
   if (!missing(dids))      p@dids <- paste(p@id,dids)          
-  if (!missing(opposite)) p@bob <- -opposite@bob 
+  if (!missing(opposite)) p@bob <- -opposite@bob
+  
+  if (!missing(perfect)) if (perfect@bob != - opposite@bob) warning('Violated positive semidefiniteness')
+  
   if (!missing(perfect))  p@bob <- perfect@bob
 #  if (!(missing(depends) || is.null(depends)))  p@dids <- paste(p@id,dids(depends))
   if (!missing(depends) )  p@dids <- paste(p@dids, p@id, dids(depends))
@@ -3089,6 +3092,12 @@ quiet <- setMethod('*', c('numeric','pbox'),
 quiet <- setMethod('*', c('pbox','pbox'),function(e1,e2){
   return(  autoselect(e1,e2,'*')  )})   
 
+quiet <- setMethod('*', c('pbox','interval'), 
+  function(e1, e2){ e1 * pbox(e2) } )
+
+quiet <- setMethod('*', c('interval','pbox'), 
+  function(e1, e2){ pbox(e1) * e2 } )
+
 if (distr.loaded)  # if distr package has been loaded
 quiet <- setMethod('*', c('pbox','Distribution'),function(e1,e2){
   return(  autoselect(e1,distr2pbox(e2),'*')  )})   
@@ -3109,6 +3118,12 @@ quiet <- setMethod('-', c('numeric','pbox'),
 quiet <- setMethod('-', c('pbox','pbox'),function(e1,e2){
   return(  autoselect(e1,negate.pbox(e2),'+')  )})   
 
+quiet <- setMethod('-', c('pbox','interval'), 
+  function(e1, e2){ e1 - pbox(e2) } )
+
+quiet <- setMethod('-', c('interval','pbox'), 
+  function(e1, e2){ pbox(e1) - e2 } )
+
 if (distr.loaded)  # if distr package has been loaded
 quiet <- setMethod('-', c('pbox','Distribution'),function(e1,e2){
   return(  autoselect(e1,negate.pbox(distr2pbox(e2)),'+')  )})   
@@ -3128,6 +3143,12 @@ quiet <- setMethod('/', c('numeric','pbox'),
 
 quiet <- setMethod('/', c('pbox','pbox'),function(e1,e2){
   return(  autoselect(e1,reciprocate.pbox(e2),'*')  )})   
+
+quiet <- setMethod('/', c('pbox','interval'), 
+  function(e1, e2){ e1 / pbox(e2) } )
+
+quiet <- setMethod('/', c('interval','pbox'), 
+  function(e1, e2){ pbox(e1) / e2 } )
 
 if (distr.loaded)  # if distr package has been loaded
 quiet <- setMethod('/', c('pbox','Distribution'),function(e1,e2){
@@ -3151,6 +3172,12 @@ quiet <- setMethod('Min', c('numeric','pbox'),
 quiet <- setMethod('Min', c('pbox','pbox'),function(e1,e2){
   return(  autoselect(e1,e2,'pmin')  )})   
 
+quiet <- setMethod('Min', c('pbox','interval'), 
+  function(e1, e2){ Min(e1, pbox(e2)) } )
+
+quiet <- setMethod('Min', c('interval','pbox'), 
+  function(e1, e2){ Min(pbox(e1), e2) } )
+
 if (distr.loaded)  # if distr package has been loaded
 quiet <- setMethod('Min', c('pbox','Distribution'),function(e1,e2){
   return(  autoselect(e1,distr2pbox(e2),'pmin')  )})   
@@ -3173,6 +3200,12 @@ quiet <- setMethod('Max', c('numeric','pbox'),
 quiet <- setMethod('Max', c('pbox','pbox'),function(e1,e2){
   return(  autoselect(e1,e2,'pmax')  )})   
 
+quiet <- setMethod('Max', c('pbox','interval'), 
+  function(e1, e2){ Max(e1, pbox(e2)) } )
+
+quiet <- setMethod('Max', c('interval','pbox'), 
+  function(e1, e2){ Max(pbox(e1), e2) } )
+
 if (distr.loaded)  # if distr package has been loaded
 quiet <- setMethod('Max', c('pbox','Distribution'),function(e1,e2){
   return(  autoselect(e1,distr2pbox(e2),'pmax')  )})   
@@ -3192,6 +3225,12 @@ quiet <- setMethod('^', c('numeric','pbox'),
 
 quiet <- setMethod('^', c('pbox','pbox'),function(e1,e2){
   return(  autoselect(e1,e2,'^')  )})   
+
+quiet <- setMethod('^', c('pbox','interval'), 
+  function(e1, e2){ e1 ^ pbox(e2) } )
+
+quiet <- setMethod('^', c('interval','pbox'), 
+  function(e1, e2){ pbox(e1) ^ e2 } )
 
 if (distr.loaded)  # if distr package has been loaded
 quiet <- setMethod('^', c('pbox','Distribution'),function(e1,e2){
@@ -3448,10 +3487,13 @@ ququadratic <- function(p,a,b){
 # Distribution constructors #
 #############################
 
-ii  <- function() c(         0, 1:(Pbox$steps-1) / Pbox$steps)
+#ii  <- function() c(         0, 1:(Pbox$steps-1) / Pbox$steps)
+#jj  <- function() c(            1:(Pbox$steps-1) / Pbox$steps, 1)
+ii <- function()                       0:(Pbox$steps-1) / Pbox$steps
 iii <- function() c(  Pbox$bOt, 1:(Pbox$steps-1) / Pbox$steps)
-jj  <- function() c(            1:(Pbox$steps-1) / Pbox$steps, 1)
-jjj <- function() c(            1:(Pbox$steps-1) / Pbox$steps, Pbox$tOp)
+jj <- function()                       1:Pbox$steps / Pbox$steps
+jjj <- function() c(                  1:(Pbox$steps-1) / Pbox$steps, Pbox$tOp)
+
 
 # Use the quantiles( ) constructor to bound all distributions 
 # that have specified quantiles (or percentiles or fractiles).
@@ -4671,7 +4713,7 @@ km <- function(k,m) {
 #  return(pbox(u,d))
 #  }
 
-uchenna <- function(kbox, mbox) { # computes the km(k,m) c-box when k and m are themselves c-boxes or p-boxes
+uchenna <- function(kbox, mbox) { # computes the km(k,m) c-box when k and m are themselves c-boxes or p-boxes, as created by gilding for instance
   n = Pbox$steps  # this routine will take about  7 seconds if Pbox$steps is 100, but about a full minute if it is 200
   nk = steps(kbox) 
   nm = steps(mbox)
@@ -4682,13 +4724,14 @@ uchenna <- function(kbox, mbox) { # computes the km(k,m) c-box when k and m are 
     Lm = c(Lm, mbox@u[[j]])    
     Rm = c(Rm, mbox@d[[j]])   
     }
-  u = sort(qbeta(ii(), rep(Lk, each=n), rep(Rm+1, each=n)))
-  d = sort(qbeta(jj(), rep(Rk+1, each=n), rep(Lm, each=n))) 
+  u = sort(qbeta(ii(), rep(Lk,      each=n), rep(Rm+1, each=n)))
+  d = sort(qbeta(jj(), rep(Rk+1, each=n), rep(Lm,      each=n))) 
   u = u[ii() * n * nk * nm + 1]     
   d = d[jj() * n * nk * nm]         
   return(pbox(u,d))
   }
   
+
 ################################################################
 # HISTORICAL codes 
 ################################################################
