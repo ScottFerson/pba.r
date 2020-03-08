@@ -5478,7 +5478,7 @@ plot.interval <- function(x, new=TRUE, shape='R', xlim=range.interval(x), ylim=c
     x = seq(lx,rx,length.out=50)
     m = (lx+rx)/2
     y = sqrt(max(x-m)^2-(x-m)^2)
-    y = y / max(y)
+    if (max(y)==0) y = seq(0,1,length.out=50) else y = y / max(y)
     lines(x,y, ...)
     } else if (shape=='T') lines(c(seq(lx,rx,length.out=3),lx), c(0,1,0,0), ...) else lines(c(lx,rx,rx,lx,lx), c(0,0,1,1,0), ...)
   }
