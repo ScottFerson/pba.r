@@ -5311,12 +5311,12 @@ sayint <- function(l,h=NULL,...) { # print(l); print(h) ; if (missing(l)) stop('
   if (is.null(h) & length(l)==2) {h <- l[[2]]; l <- l[[1]] }
   if (l==h) h else paste('[',format(l,...),',',format(h,...),']',sep='')
   }
-
-sayint <- function(i,...) { 
-  l <- i@lo
-  h <- i@hi
+	   
+sayint = function(i,...) { 
+  l <- left(i)
+  h <- right(i)
   if (isTRUE(all.equal(l,h))) h else paste('[',format(l,...),',',format(h,...),']',sep='')
-  }
+  }	   
 
 #width.interval <- function(x) x[[2]] - x[[1]] #obsolete
 
